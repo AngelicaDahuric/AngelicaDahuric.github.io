@@ -348,6 +348,7 @@ q->next->prior = p;
 free(q);
 ```
 ##### 代码
+1. 单链表
 ```cpp
 typedef  int Status;
 typedef  int ElemType;
@@ -439,23 +440,785 @@ Status ListDelete_L(LinkList &L, int i,  ElemType &e)
 }
 ```
 
+2. 双向链表
+
+非书上代码仅供参考,From[CSDN薛定谔的猫ovo](https://blog.csdn.net/weixin_44162361/article/details/115819742)
+
+```cpp
+#include<bits/stdc++.h>
+using namespace std;
+
+typedef struct DNode{
+    int data;
+    struct DNode *prior,*next;
+}DNode, *DLinkList;
+
+//初始化
+void InitList(DLinkList &L){
+    L = (DNode *)malloc(sizeof(DLinkList));
+    L->prior = NULL;
+    L->next = NULL;
+}
+
+//遍历操作
+void PrintList(DLinkList L){
+    DNode *p = L->next;
+    while(p){
+        cout<<p->data<<" ";
+        p = p->next;
+    }
+    cout<<endl;
+}
+
+//求双链表的长度
+int Length(DLinkList L){
+    DNode *p = L->next;
+    int len = 0;
+    while(p){
+        len++;
+        p = p->next;
+    }
+    return len;
+}
+
+//头插法建立双链表
+DLinkList HeadInsert(DLinkList &L){
+    InitList(L); //初始化
+    int x;
+    cin>>x;
+    while(x!=9999){
+        DNode *s = (DNode *)malloc(sizeof(DNode));
+        s->data = x;
+        if(L->next == NULL){
+            s->next = NULL;
+            s->prior = L;
+            L->next = s;
+        }else{
+            s->next = L->next;
+            L->next->prior = s;
+            s->prior = L;
+            L->next = s;
+        }
+        cin>>x;
+    }
+    return L;
+}
+
+//尾插法建立双链表
+DLinkList TailInsert(DLinkList &L){
+    InitList(L);
+    DNode *s,*r=L;
+    int x;
+    cin>>x;
+    while(x!=9999){
+        s = (DNode *)malloc(sizeof(DNode));
+        s->data = x;
+        s->next = NULL;
+        s->prior = r;
+        r->next = s;
+        r = s;
+        cin>>x;
+    }
+    return L;
+}
+
+//按值查找：查找x在L中的位置
+DNode *LocateElem(DLinkList L, int x){
+    DNode *p = L->next;
+    while(p && p->data != x){
+        p = p->next;
+    }
+    return p;
+}
+
+//按位查找：查找在双链表L中第i个位置的结点
+DNode *GetElem(DLinkList L, int i){
+    int j=1;
+    DNode *p = L->next;
+    if(i==0)return L;
+    if(i<1)return NULL;
+    while(p && j<i){
+        p = p->next;
+        j++;
+    }
+    return p; //如果i大于表长，p=NULL,直接返回p即可
+}
+
+//将x插入到双链表L中*p结点的下一个结点
+void Insert(DLinkList &L, DNode *p, int x){
+    DNode *s = (DNode *)malloc(sizeof(DNode));
+    s->data = x;
+    s->next = p->next;
+    p->next->prior = s;
+    s->prior = p;
+    p->next = s;
+}
+
+//删除操作:将双链表中的第i个结点删除
+void Delete(DLinkList &L, int i){
+    if(i<1 || i>Length(L)){
+        cout<<"delete failed: index is wrong."<<endl;
+        return;
+    }
+    DNode *p = GetElem(L,i-1);
+    DNode *q = p->next;
+    p->next = q->next;
+    q->next->prior = p;
+    free(q);
+}
+
+//判空操作
+bool Empty(DLinkList L){
+    if(L->next == NULL){
+        cout<<"L is null"<<endl;
+        return true;
+    }else{
+        cout<<"L is not null"<<endl;
+        return false;
+    }
+}
+
+
+int main(){
+    //尾插法建立双链表，并遍历单链表
+    DLinkList L = TailInsert(L);
+    cout<<"L: ";
+    PrintList(L);
+    
+    DNode *p;
+    //按值查找
+    p = LocateElem(L,2);
+    cout<<"值为2的结点的下一个结点值是："<<p->next->data<<endl;
+    cout<<"值为2的结点的上一个结点值是："<<p->prior->data<<endl;
+    //按位查找
+    p = GetElem(L,3);
+    cout<<"第三个结点值是："<<p->data<<endl;
+    
+    //插入操作
+    Insert(L,p,7);
+    cout<<"在第三个结点后面插入值为7的结点后L： ";
+    PrintList(L);
+    
+    //删除操作
+    Delete(L, 5);
+    cout<<"删除第五个结点后L： ";
+    PrintList(L);
+    
+    //求表长
+    cout<<"表长为："<<Length(L)<<endl;;
+    
+    //判空
+    Empty(L);
+    return 0;
+}
+```
+
+3. 循环链表
+```cpp
+#include<stdio.h>
+#include<stdlib.h>
+
+#define TRUE 1
+#define FALSE 0
+#define OK  1
+#define ERROR  0
+#define OVERFLOW -2
+
+typedef  int Status;
+typedef  int ElemType;
+
+//–––––线性表的链式存储结构–––––
+typedef  struct  LNode
+{  ElemType       data;
+   struct  LNode  *next;
+}LNode, *LinkList;
+
+//--------------基本操作-----------------
+Status InitList(LinkList &L)
+{ //建立一个空的链表，L为头结点指针.
+   L=(LinkList )malloc(sizeof(LNode));   //生成头结点
+   if(!L) return ERROR;
+   
+L->next=L;
+   return OK;
+} //InitList
+
+Status DestroyList(LinkList &L)
+{ LinkList p,q;
+  p=L->next;
+  while(p!=L)
+  {q=p->next;
+   free(p);
+   p=q;
+  }
+  free(L);
+  return OK;
+}
+
+int ListEmpty(LinkList L)
+{ if (L->next==L) return TRUE;
+  else return FALSE;
+}
+
+Status GetElem(LinkList L, int i, ElemType &e)
+{ //L为带头结点的循环单链表的头指针.
+  //当第i个元素存在时,其值赋给e并返回OK,否则返回ERROR
+ LinkList p; int j;
+ p =L->next;
+ j= 1;      //初始化,p指向第一个结点,j为计数器
+ while (j!=i&&p!=L)
+  {                   //顺指针向后查找,直到p指向第i个元素
+    p = p->next ;   ++j;
+  }
+ if (p==L||j>i)  return ERROR ;          //第i个元素不存在
+ e =p->data;                                               //取第i个元素
+ return OK;
+} //GetElem
+
+Status ListInsert(LinkList &L, int i, ElemType e)
+{//在带头结点的循环链表L中第i个位置之前插入元素e
+ LinkList p,s; int j;
+ p = L; j = 0;
+ while ( (p->next!=L)&&(j!=i-1))
+      { p = p->next; ++j; }                     //寻找第i-1个结点
+ if  (  j>i-1||j<i-1)  return ERROR; //i 小于1或者大于表长
+ s = (LinkList )malloc(sizeof(LNode));   //生成新结点
+ if(!s) return ERROR;
+ s->data = e; 
+ s->next = p->next;                 //插入L中
+ p->next=s;
+ return OK;
+}
+
+Status ListDelete(LinkList &L, int i,  ElemType &e)
+{ // 在带头结点的循环单链线性表L中,删除第i个元素,并由e返回其值
+ int j;
+ LinkList p,q;
+ p = L;  j =0;
+ while( (p->next!=L)&&(j!=i-1))
+  { p = p->next; ++j; }      //寻找第i个元素,并令p指向其前驱
+ if (j<i-1||j>i-1)  return ERROR;   //删除位置不合理
+ q = p->next;
+ p->next = q->next;             //删除并释放结点
+ e = q->data;
+ free(q);
+ return OK;
+}
+```
+
 ## 栈（Stack）
 
+先进后出，后进先出是栈
+
+### 定义
+
+栈（Stack）：是操作受限的只允许在一端进行插入或删除的线性表。
+
+栈顶（Top）：线性表允许进行插入删除的那一端。
+
+栈底（Bottom）：固定的，不允许进行插入和删除的另一端。
+
+空栈：不含任何元素的空表。
+
+### 栈的顺序储存结构
+
+#### 栈的顺序储存
+
+采用顺序存储的栈称为顺序栈，它利用一组地址连续的存储单元存放自栈底（base）到栈顶的数据元素，同时附设一个指针（top）指示当前栈顶元素的下一个位置。
+
+若存储栈的长度为stacksize，则栈顶位置top必须小于stacksize。当栈存在一个元素时，下标为0所以top等于0，因此通常把空栈的判断条件定位top等于-1。（本文代码将top==base作为判定条件）
+
+```cpp
+#define STACK_INIT_SIZE   100       //存储空间初始分配
+#define STACKINCREMENT  10       //存储空间分配增量
+typedef int Status;
+typedef struct
+{SElemType *base;//开空间的base
+ SElemType *top; //栈顶指针
+ int stacksize;
+}SqStack;
+
+```
+#### 栈的操作及代码
+1. 初始化
+```cpp
+Status InitStack(SqStack &s)
+{s.base=(SElemType *)malloc(STACK_INIT_SIZE*sizeof(SElemType));
+ if (!s.base) exit(OVERFLOW);            //存储分配失败
+ s.top=s.base;
+ s.stacksize = STACK_INIT_SIZE;
+ return OK;
+}
+```
+2. 获得栈顶元素
+```cpp
+Status GetTop(SqStack s, SElemType &e)
+{ if(s.top == s.base) return ERROR;
+  e=*(s.top - 1);
+  return OK;
+}
+
+```
+3. push元素
+```cpp
+Status Push(SqStack &s,SElemType e)
+{//插入元素e为新的栈顶元素
+  if(s.top-s.base>=s.stacksize)
+  {//栈满,追加存储空间
+   s.base = (SElemType*)realloc(s.base, (s.stacksize+STACKINCREMENT)*sizeof(SElemType));
+   if(!s.base)exit(OVERFLOW);           //存储分配失败
+   s.top = s.base + s.stacksize;
+   s.stacksize +=STACKINCREMENT;
+  }
+  *s.top++ = e;
+  return OK;
+}
+```
+4. 弹出元素pop
+```cpp
+Status Pop(SqStack &s,SElemType &e)
+{ if(s.top == s.base) return ERROR;
+  e=*(--s.top);
+  return OK;
+}
+```
+5. 判空
+```cpp
+Status StackEmpty(SqStack s)
+{ if(s.top==s.base) return OK;
+  else return ERROR;
+}
+
+```
+### 栈的链式储存结构
+
+链栈，顾名思义：采用链式存储结构实现的栈称为链栈。
+
+#### 栈的链式储存
+
+链栈通常采用单链表来实现，因此其结构与单链表的结构相同。
+#### 操作
+
+由于栈的插入和删除操作仅限制在栈顶位置进行，所以采用单链表的头指针作为栈顶指针。
+
+同时，为了操作方便，使用带头节点的单链表来实现链表。数据入栈或出栈时，使表头节点的指针指向新的表首节点即可，再入栈时，需要为新的数据元素动态的开辟存储单元，并修改头结点的指针域；而在出栈时，除了改变头结点的指针域，还要释放原栈顶元素所占用的空间。
+
+其余的操作思路和顺序栈一致，代码和链表一致
+
+#### 代码
+
+非书上代码仅供参考，From [CSDN:九芒星#](https://blog.csdn.net/weixin_48701521/article/details/107687403)
+
+```cpp
+#include <stdio.h>
+#include <stdlib.h>
+typedef int elemtype;
+typedef struct LinkedStackNode 
+{	
+	elemtype data;
+	struct LinkedStackNode * next;
+} LinkedStackNode, * LinkedStack;                                  
+  LinkedStack top;
+
+//初始化
+LinkedStack Init_LinkedStack()                                       
+{	
+	LinkedStack top=(LinkedStackNode * )malloc (sizeof( LinkedStackNode));
+	if(top!=NULL)//申请空间成功
+	top->next=NULL;//设置栈顶指针为空
+	return top;
+}
+
+//判栈空
+int LinkedStack_Empty(LinkedStack top)                            
+{	
+	if(top->next==NULL)//检查栈顶指针的值 
+	{
+		return 1;//栈S为空，函数返回1
+	}	
+	else
+	{
+		return 0;
+	}
+}
+
+//入栈
+int Push_LinkedStack(LinkedStack top,elemtype x)                     
+	//插入数据元素x为新的栈顶元素
+{	
+	LinkedStackNode * node;
+	node=(LinkedStackNode * )malloc(sizeof(LinkedStackNode));
+	if(node==NULL)
+	{
+		return 0;//申请结点空间失败,插入失败，函数返回0
+	}
+	else
+	{
+		node->data=x;//设置新结点的数据域
+		node->next=top->next;//设置新结点的指针城
+		top->next=node;//设置头结点指针城指向新的栈顶元素
+		return 1;//插入成功，函数返回1
+	}
+}
+
+//求栈长
+int Length_LinkedStack(LinkedStack top)                                       
+{
+	int count = 0;
+	while(top->next!=NULL) 
+	{
+		++count;
+		top=top->next;
+	}
+	return count;
+}
+
+//出栈
+int Pop_LinkedStack(LinkedStack top, elemtype *x)                    
+{	LinkedStackNode * node;
+	if(top->next==NULL)
+	{
+		return 0;
+	}
+	else
+	{
+		node=top->next;//将原栈顶数据元素弹出并赋给node
+		*x=node->data;//将原栈顶数据元素的数据赋值给x
+		top->next=node->next;//top指向链栈中的下一个数据元素
+		free (node);//释放原栈顶数据元素所占的空间
+		return 1;
+	}
+}  
+
+//取栈顶元素
+int GetTop_LinkedStack(LinkedStack top)                
+{ 
+	if(top->next)
+      {
+            return top->next->data;
+
+      }
+      return -1;
+}
+
+//主函数
+void main()
+{
+	int i,t,x,a[20];
+	LinkedStack top=Init_LinkedStack();//初始化栈
+	x=LinkedStack_Empty(top);//判栈空结果赋值给X
+	if(x=0)
+	{
+		printf("栈为空\n");
+	}
+
+	printf("请依次输入5个数,开始入栈：\n");
+	for(i=0;i<5;i++) 
+	{
+		scanf("%d",&a[i]);
+		Push_LinkedStack(top,a[i]);
+		x=GetTop_LinkedStack(top);
+		if(x!=-1)
+		{
+			printf("当前栈顶元素为%d\n",x);
+		}
+	}
+	printf("入栈结束\n");
+	printf("栈长为%d\n",Length_LinkedStack(top));
+	printf("开始出栈:\n");
+	for (i=0;i<5;i++)
+	{
+		Pop_LinkedStack(top,&t);
+        printf("%d",t);
+	}
+	printf("\n");
+	printf("出栈后栈长为%d\n",Length_LinkedStack(top));
+}
+
+```
+
+### 笔试题做题技巧
+（做题时牢记后进先出的特性）
+1. 判断出栈合法问题
+
+入栈是降序排列：任意数A的后面比A大的数都是按照升序排列的
+
+入栈是升序排列：任意数A的后面比A小的数都是按照降序排列的
+
+### 栈的应用
+1. 递归栈
+
+
+2. 用栈深度优先搜索走迷宫
+
+    用栈存储路径，遇到死路弹出该路径点，然后取栈顶路径点并走没走过的路。
+
+3. 中后缀表达式的计算
+
+    中缀表达式：就是我们平时用的标准四则运算表达式，运算符在操作数中间，例如：$9+（3-1）*3+10/2$
+
+    后缀表达式：也称为逆波兰表达式，是将运算符写在操作数之后的表达式，例如上式的后缀表达式为：$9 3 1 - 3 * + 10 2 / +$
+  
+    1)**中后缀转换**的思路：从左到右遍历中缀表达式的每个数字和符号，若是数字就输出，即成为后缀表达式的一部分；若是符号，则判断其与栈顶符号的优先级，是右括号或优先级低于栈顶符号（乘除优先加减）则栈顶元素依次出栈并输出，并将当前符号进栈，一直到最终输出后缀表达式为止。
+    
+    具体可以互联网搜索 也可以看[中后缀表达式转换及后缀表达式计算 From：CSDN](https://blog.csdn.net/Amentos/article/details/127182926)
+
+    2)**后缀表达式**计算思路：从左到右遍历后缀表达式的每个数字和符号，遇到数字就进栈，遇到是符号，就将处于栈顶两个数字出栈，进行运算，运算结果进栈，一直到最终获得结果。（具体步骤可以互联网搜索）
+
+4. 符号配对（如括号 冒号之类）
+
+   思路：遍历整个字符串过程中，遇到左符号时用栈存储，遇到右符号就和栈顶元素匹配，成功则出栈，若遍历结束后栈为空则符号配对，否则配对失败。
 
 ## 队列（Queue）
 
+本部分参考[CSDN: Jacky_Feng博客](https://blog.csdn.net/Jacky_Feng/article/details/108595654)
+
+队列也是操作受限的线性表，其先进先出。
+### 定义
+队列：先进先出
+
+队头：允许删除的，元素出队的一端
+
+队尾：允许插入的，元素入队的一端
+### 队列的顺序储存
+#### 定义
+用一组地址连续的存储单元，依次存放从队头到队尾的数据元素，称为顺序队列。
+
+需要附设两个指针：队头指针（front）和队尾指针（rear），分别指向队头元素和队尾元素。
+#### 操作
+
+1. 入队
+ 元素加入的同时队尾指针自增
+2. 出队
+  取队头元素并队头指针自增
+
+以下是一个操作示意
+  ![示意](https://img-blog.csdnimg.cn/20200915114223135.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0phY2t5X0Zlbmc=,size_16,color_FFFFFF,t_70)
+
+3. “假溢出”问题
+
+    如果在插入E的基础上再插入元素F，将会插入失败。因为rear==MAXSIZE，尾指针已经达到队列的最大长度。但实际上队列存储空间并未全部被占满，这种现象叫做“假溢出”
+
+**为了克服这个问题一般写顺序的循环队列**
+### 循环队列
+#### 定义
+
+将队列的头尾相接的顺序存储结构称为循环队列。
+
+示意图：
+![text](/images/ds/image.png)
+
+问题：当循环对列为空或满时，都是队尾指针等于队头指针，即rear==front 。当rear==front时，该是判满还是判空呢？
+
+解决方案(请根据题目给出的方案选择代码)：
+
+方案一：设置一个计数器，开始时计数器设为0，新元素入队时，计数器加1，元素出队，计数器减1。当计数器==MAXSIZE时，队满；计数器==0时，队空。
+
+方案二：保留一个元素空间，当队尾指针指的空闲单元的后继单元是队头元素所在单元时，队满。
+
+队满的条件为（Q.rear+1）%MAXSIZE==Q.front；
+
+队空的条件为Q.rear==Q.front
+#### 操作
+1. 入队的改变处
+```cpp
+  q.base[q.rear]=e;
+  q.rear=(q.rear+1)% MAXQSIZE;
+```
+2. 出队的改变处
+```cpp
+  e=q.base[q.front];
+  q.front=(q.front+1)% MAXQSIZE;
+```
+#### 代码实现
+
+```cpp
+//–––––循环队列──队列的顺序存储结构–––––
+#define MAXQSIZE   100      //最大队列长度
+typedef  struct
+{QElemType * base;   //初始化的动态分配存储空间
+ int front;  //头指针,若队列不空,指向队列头元素
+ int rear;   //尾指针,若队列不空,指向队列尾元素的下一个位置
+}SqQueue;
+Status InitQueue(SqQueue &Q)
+{//  构造一个空队列Q
+  Q.base = (QElemType *)malloc(MAXQSIZE * sizeof(QElemType));
+  if (!Q.base)  exit(OVERFLOW);  //存储分配失败
+  Q.front = 0;
+  Q.rear = 0;
+  return OK;
+}
+int QueueLength(SqQueue Q)
+{//返回Q的元素个数,即队列的长度
+  return (Q.rear - Q.front + MAXQSIZE) % MAXQSIZE;
+}
+Status EnQueue(SqQueue &Q,QElemType e)
+{// 插入元素e为Q的新的队尾元素
+   if( (Q.rear + 1) % MAXQSIZE == Q.front )   //队列满
+        return ERROR;                                      
+   Q.base[Q.rear]=e;
+  Q.rear = (Q.rear + 1) % MAXQSIZE;
+   return OK;
+}
+Status DeQueue(SqQueue &Q, QElemType &e)
+{// 删除队头元素，送给变量e
+  if( Q.base[Q.front] ) return ERROR;   //队列空
+  e= Q.front;
+  (Q.front + 1) % MAXQSIZE;
+  return OK;
+}
+Status QueueEmpty(SqQueue Q)
+{ if( Q.front == Q.rear ) return TRUE;
+  return FALSE;
+}
+```
+### 队列的链式储存
+基本上和链栈的方式一样不做过多阐述直接上代码
+#### 代码实现
+```cpp
+typedef  int  Status;
+typedef char QElemType;
+
+//–––––队列的链式存储结构–––––
+typedef  struct QNode
+{QElemType     data;
+ struct QNode   *next;
+}QNode, *QueuePtr;
+
+typedef struct
+{  
+  QueuePtr front;      //队头指针   
+  QueuePtr rear;        //队尾指针
+}LinkQueue;
+
+Status InitQueue(LinkQueue &Q)
+{// 构造一个空队列Q
+ Q.front = Q.rear =(QueuePtr)malloc(sizeof(QNode));
+ if(!Q.front) exit(OVERFLOW);     //存储分配失败
+ Q.front->next=NULL;
+ return OK;
+}
+
+Status DestroyQueue(LinkQueue &Q)
+{// 销毁队列Q
+while(Q.front)
+ { Q.rear = Q.front->next;  
+free(Q.front);
+   Q.front = Q.rear;
+ }
+return OK;
+}
+
+int QueueLength(LinkQueue Q)
+{//返回Q的元素个数,即队列的长度
+  QueuePtr p;
+  int len=0;
+  p=Q.front->next;
+  while(p != Q.rear)
+  {
+      len++;
+    p=p->next;
+  }
+  return len;
+}
+Status EnQueue(LinkQueue &Q, QElemType e)
+{// 插入元素e为Q的新的队尾元素
+  QueuePtr p;
+  p = (QueuePtr)malloc(sizeof(QNode));
+  if(!p)  exit(OVERFLOW);        //存储分配失败
+  p->data = e;   p->next = NULL;
+  Q.rear->next=p;  
+    Q.rear =p;
+  return OK;
+}
+
+Status DeQueue(LinkQueue &Q, QElemType &e)
+{//若队列不空,则删除Q的队头元素,用e返回其值,
+//并返回OK;  否则返回ERROR
+  QueuePtr p;
+  if( Q.front==Q.rear) return ERROR;
+  p = Q.front->next; 
+    e = p->data;
+  
+Q.front->next=p->next;
+  if(Q.rear==p)Q.rear = Q.front;
+  free(p);
+  return OK;
+}
+
+Status QueueEmpty(LinkQueue Q)
+{ if(Q.front==Q.rear) return TRUE;
+  return FALSE;
+}
+```
+
 ## 字符串（String）
+课内只讲述了定义和类型实现,
+
+请阅读此篇博客来解决问题（注：空格串即空白串）
+[数据结构：串(String)【详解】](https://blog.csdn.net/Real_Fool_/article/details/113877781)
 
 ## 数组和广义表（Array and Table）
 
+
+此内容个人认为ppt讲述较为完善，请查看课内ppt附件。
+
+数据的学习目标大概为:
+1. 会计算按行、按列、按页优先顺序存放的数组元素a[i][j][k]的存储地址。解决ppt习题。
+2. 特殊矩阵的定义，其压缩存储办法和储存地址的计算方法。解决ppt后习题。
+3. 广义表的定义和画图表示
+
 ## 树（Tree）
+### 基本定义及术语
+
+### 二叉树
+
+### 遍历二叉树和线索二叉树
+
+### 树和森林
+
+### 赫夫曼树及应用（编码）
+
+
 
 ## 图（Graph）
 
+### 图的定义及术语
+
+### 存储结构
+#### 邻接表和邻接矩阵
+
+### 遍历
+#### 深度优先和广度优先
+
+### 联通问题
+
+#### 深度、广度生成树、森林（不联通）
+
+#### 最小生成树
+
+##### prim
+
+##### kruskal
+
+###  有向无环图及其应用（拓扑排列、关键路径）
+
+
+### 最短路径问题
+
+#### 单源最短路
+
+#### 多源最短路
+
+
 ## 查找（Search）
+重点：求查找成功和失败的ASL（平均查找长度）
+### 哨兵遍历
+
+### 折半二分查找
+
+### 哈希表
+
 
 ## 内部排序（Sort）
-
-# 代码实现及详解
-
-# 做题注意事项及技巧
+#### 八大排序
