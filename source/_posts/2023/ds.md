@@ -191,7 +191,7 @@ void MergeList_Sq(SqList La,SqList Lb, SqList &Lc)
 链表的一个数据单元，结构分为数据域和指针域。
 
 下面为一个单链表节点示例
-```cpp
+```c++
 typedef struct node {
    ElementType data;
    struct node *next;
@@ -259,7 +259,7 @@ typedef struct node {
 2. 遍历
 
 通过指针访问直接遍历即可：
-```cpp
+```c++
 void printLinkedList(struct Node* head) {
     struct Node* p = head;
     while (p != NULL) {
@@ -282,7 +282,7 @@ void printLinkedList(struct Node* head) {
 
 ![单链表插入](/images/ds/link-insert.png)
 
-```cpp
+```c++
 Status ListInsert_L(LinkList &L, int i, ElemType e)
 {//在带头结点的单线性链表L中第i个位置之前插入元素e
  LinkList p,s; int j;
@@ -301,7 +301,7 @@ Status ListInsert_L(LinkList &L, int i, ElemType e)
 
 ![双链表插入](/images/ds/doublelinked-insert.png)
 
-```cpp
+```c++
 //在p结点之后插入s结点
 bool InsertNextDNode(DNode *P, DNode *s)
 {
@@ -320,7 +320,7 @@ bool InsertNextDNode(DNode *P, DNode *s)
 
 ![单链表删除](/images/ds/delete.png)
 
-```cpp
+```c++
 Status ListDelete_L(LinkList &L, int i,  ElemType &e)
 { // 在带头结点的单链线性表L中,删除第i个元素,并由e返回其值
  int j;
@@ -341,7 +341,7 @@ Status ListDelete_L(LinkList &L, int i,  ElemType &e)
 
 ![双链表删除](/images/ds/delete.png)
 
-```cpp
+```c++
 //删除p的后继结点q,
 p->next = q->next;
 q->next->prior = p;
@@ -349,7 +349,7 @@ free(q);
 ```
 ##### 代码
 1. 单链表
-```cpp
+```c++
 typedef  int Status;
 typedef  int ElemType;
 
@@ -444,7 +444,7 @@ Status ListDelete_L(LinkList &L, int i,  ElemType &e)
 
 非书上代码仅供参考,From[CSDN薛定谔的猫ovo](https://blog.csdn.net/weixin_44162361/article/details/115819742)
 
-```cpp
+```c++
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -614,7 +614,7 @@ int main(){
 ```
 
 3. 循环链表
-```cpp
+```c++
 #include<stdio.h>
 #include<stdlib.h>
 
@@ -728,7 +728,7 @@ Status ListDelete(LinkList &L, int i,  ElemType &e)
 
 若存储栈的长度为stacksize，则栈顶位置top必须小于stacksize。当栈存在一个元素时，下标为0所以top等于0，因此通常把空栈的判断条件定位top等于-1。（本文代码将top==base作为判定条件）
 
-```cpp
+```c++
 #define STACK_INIT_SIZE   100       //存储空间初始分配
 #define STACKINCREMENT  10       //存储空间分配增量
 typedef int Status;
@@ -741,7 +741,7 @@ typedef struct
 ```
 #### 栈的操作及代码
 1. 初始化
-```cpp
+```c++
 Status InitStack(SqStack &s)
 {s.base=(SElemType *)malloc(STACK_INIT_SIZE*sizeof(SElemType));
  if (!s.base) exit(OVERFLOW);            //存储分配失败
@@ -751,7 +751,7 @@ Status InitStack(SqStack &s)
 }
 ```
 2. 获得栈顶元素
-```cpp
+```c++
 Status GetTop(SqStack s, SElemType &e)
 { if(s.top == s.base) return ERROR;
   e=*(s.top - 1);
@@ -760,7 +760,7 @@ Status GetTop(SqStack s, SElemType &e)
 
 ```
 3. push元素
-```cpp
+```c++
 Status Push(SqStack &s,SElemType e)
 {//插入元素e为新的栈顶元素
   if(s.top-s.base>=s.stacksize)
@@ -775,7 +775,7 @@ Status Push(SqStack &s,SElemType e)
 }
 ```
 4. 弹出元素pop
-```cpp
+```c++
 Status Pop(SqStack &s,SElemType &e)
 { if(s.top == s.base) return ERROR;
   e=*(--s.top);
@@ -783,7 +783,7 @@ Status Pop(SqStack &s,SElemType &e)
 }
 ```
 5. 判空
-```cpp
+```c++
 Status StackEmpty(SqStack s)
 { if(s.top==s.base) return OK;
   else return ERROR;
@@ -809,7 +809,7 @@ Status StackEmpty(SqStack s)
 
 非书上代码仅供参考，From [CSDN:九芒星#](https://blog.csdn.net/weixin_48701521/article/details/107687403)
 
-```cpp
+```c++
 #include <stdio.h>
 #include <stdlib.h>
 typedef int elemtype;
@@ -1021,18 +1021,18 @@ void main()
 队空的条件为Q.rear==Q.front
 #### 操作
 1. 入队的改变处
-```cpp
+```c++
   q.base[q.rear]=e;
   q.rear=(q.rear+1)% MAXQSIZE;
 ```
 2. 出队的改变处
-```cpp
+```c++
   e=q.base[q.front];
   q.front=(q.front+1)% MAXQSIZE;
 ```
 #### 代码实现
 
-```cpp
+```c++
 //–––––循环队列──队列的顺序存储结构–––––
 #define MAXQSIZE   100      //最大队列长度
 typedef  struct
@@ -1075,7 +1075,7 @@ Status QueueEmpty(SqQueue Q)
 ### 队列的链式储存
 基本上和链栈的方式一样不做过多阐述直接上代码
 #### 代码实现
-```cpp
+```c++
 typedef  int  Status;
 typedef char QElemType;
 
