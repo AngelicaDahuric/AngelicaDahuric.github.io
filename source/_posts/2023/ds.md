@@ -1194,6 +1194,31 @@ Status QueueEmpty(LinkQueue Q)
 
 ### 遍历二叉树和线索二叉树
 
+pta答案补充
+
+```cpp
+
+//非递归中序遍历算法。
+
+Status InOrderTraverse(BiTree T,Status(*Visit)(BiTree e))
+{ //采用二叉链表存储结构
+   //中序历遍二叉树T的非递归算法，对每个数据元素调用函数Visit。
+ SqStack S;
+ BiTree p;
+ InitStack(S);
+ p=T;
+ while(p || !StackEmpty(S) )
+ {  if(p)
+       {Push(S,p);p=p->lchild; }   //根指针进栈, 历遍左子树
+    else
+        { Pop(S,p);   //根指针退栈，访问结点，历遍右子树
+          (*Visit)(p);
+         p=p->rchild;
+        }//else
+ }
+ return OK;
+}
+```
 ### 树和森林
 
 ### 赫夫曼树及应用（编码）
@@ -1210,6 +1235,512 @@ Status QueueEmpty(LinkQueue Q)
 ### 存储结构
 #### 邻接表和邻接矩阵
 
+```cpp
+//无向图采用邻接矩阵结构存储，本题要求实现无向图的基本操作，请填空。
+#include <stdio.h>
+#include <string.h>
+
+// 图的数组(邻接矩阵)存储表示
+#define MAX_VERTEX_NUM 20 // 最大顶点个数
+enum GraphKind{DG,DN,AG,AN}; // {有向图,有向网,无向图,无向网}
+
+typedef char VertexType[6];
+
+// 顶点关系类型。对无权图，用1(是)或0(否)表示相邻否； 对带权图，则为权值类型
+typedef int ArcCell,AdjMatrix[MAX_VERTEX_NUM][MAX_VERTEX_NUM];
+
+struct MGraph
+{
+  VertexType vexs[MAX_VERTEX_NUM]; // 顶点向量
+  AdjMatrix arcs; // 邻接矩阵
+  int vexnum,arcnum; // 图的当前顶点数和弧数
+  GraphKind kind; // 图的种类标志
+};
+
+// 图的数组(邻接矩阵)存储基本操作
+int LocateVex(MGraph G,VertexType u)
+{ // 初始条件:图G存在,u和G中顶点有相同特征
+  // 操作结果:若G中存在顶点u,则返回该顶点在图中位置;否则返回-1
+  int i;
+  for(i=0;i<G.vexnum;++i)
+    if(strcmp(G.vexs[i], u) == 0)
+      return i;
+  return -1;
+}
+
+Status CreateAG(MGraph &G)
+{ // 采用数组(邻接矩阵)表示法,由文件构造没有相关信息的无向图G
+  int i,j,k;
+  VertexType va,vb;
+  printf("请输入无向图G的顶点数,边数:");
+  scanf("%d",&G.vexnum);
+  scanf("%d",&G.arcnum);
+  printf("\n请输入%d个顶点的值:\n",G.vexnum);
+  for(i=0;i<G.vexnum;++i) // 构造顶点向量
+    scanf(" %s", G.vexs[i]);
+  for(i=0;i<G.vexnum;++i) // 初始化邻接矩阵
+    for(j=0;j<G.vexnum;++j)
+      G.arcs[i][j]=0;
+  printf("请输入%d条边的顶点1 顶点2:\n",G.arcnum);
+  for(k=0;k<G.arcnum;++k)
+  {
+    scanf(" %s%s",va,vb);
+    i=LocateVex(G, va);
+    j=LocateVex(G, vb);
+    G.arcs[i][j]=G.arcs[j][i]=1; // 无向图
+  }
+  G.kind=AG;
+  return OK;
+}
+
+void DestroyGraph(MGraph &G)
+ { // 初始条件: 图G存在。操作结果: 销毁无向图G
+   G.vexnum=0;
+   G.arcnum=0;
+ }
+
+Status PutVex(MGraph &G,VertexType v,VertexType value)
+{ // 初始条件: 图G存在，v是G中某个顶点。操作结果: 对v赋新值value
+  int k;
+  k=_LocateVex(G, v); // k为顶点v在图G中的序号
+  if(k<0)
+    return ERROR;
+  strcpy(G.vexs[k], value);
+  return OK;
+}
+
+int FirstAdjVex(MGraph G,VertexType v)
+{ // 初始条件: 图G存在,v是G中某个顶点
+  // 操作结果: 返回v的第一个邻接顶点的序号。若顶点在G中没有邻接顶点,则返回-1
+  int i,j=0,k;
+  k=LocateVex(G, v); // k为顶点v在图G中的序号
+  for(i=0;i<G.vexnum;i++)
+    if(G.arcs[i][k] == 1)   //无向图
+      return i;
+  return -1;
+}
+
+int NextAdjVex(MGraph G,VertexType v,VertexType w)
+{ // 初始条件: 图G存在,v是G中某个顶点,w是v的邻接顶点
+  // 操作结果: 返回v的(相对于w的)下一个邻接顶点的序号,
+  //           若w是v的最后一个邻接顶点,则返回-1
+  int i,j=0,k1,k2;
+  k1=LocateVex(G, v); // k1为顶点v在图G中的序号
+  k2=LocateVex(G, w); // k2为顶点w在图G中的序号
+  for(i=k2+1;i<G.vexnum;i++)
+    if(G.arcs[i][k1] == 1)
+      return i;
+  return -1;
+}
+
+void InsertVex(MGraph &G,VertexType v)
+{ // 初始条件: 图G存在,v和图G中顶点有相同特征
+  // 操作结果: 在图G中增添新顶点v(不增添与顶点相关的弧,留待InsertArc()去做)
+  int i;
+  strcpy(G.vexs[G.vexnum],v); // 构造新顶点向量
+  for(i=0;i<=G.vexnum;i++)
+  {
+    G.arcs[G.vexnum][i]=0; // 初始化该行邻接矩阵的值(无边或弧)
+    G.arcs[i][G.vexnum]=0; // 初始化该列邻接矩阵的值(无边或弧)
+  }
+G.vexnum++; // 图G的顶点数加1
+}
+
+Status DeleteVex(MGraph &G,VertexType v)
+{ // 初始条件: 图G存在,v是G中某个顶点。操作结果: 删除G中顶点v及其相关的弧
+  int i,j,k;
+  k=LocateVex(G,v); // k为待删除顶点v的序号
+  if(k<0) // v不是图G的顶点
+    return ERROR;
+  for(j=0;j<G.vexnum;j++)
+    if(G.arcs[j][k]!=0) // 有边
+      G.arcnum--; // 修改边数
+  for(j=k+1;j<G.vexnum;j++) // 序号k后面的顶点向量依次前移
+    strcpy(G.vexs[j-1], G.vexs[j]);
+  for(i=0;i<G.vexnum;i++)
+    for(j=k+1;j<G.vexnum;j++)
+      G.arcs[i][j-1]=G.arcs[i][j]; // 移动待删除顶点之后的矩阵元素
+  for(i=0;i<G.vexnum;i++)
+    for(j=k+1;j<G.vexnum;j++)
+      G.arcs[j-1][i]=G.arcs[j][i]; // 移动待删除顶点之下的矩阵元素
+  G.vexnum--; // 更新图的顶点数
+  return OK;
+}
+
+Status InsertArc(MGraph &G,VertexType v,VertexType w)
+{ // 初始条件: 图G存在,v和W是G中两个顶点
+  // 操作结果: 在G中增添弧<v,w>,若G是无向的,则还增添对称弧<w,v>
+  int i,l,v1,w1;
+  v1=LocateVex(G, v); // 尾
+  w1=LocateVex(G, w); // 头
+  if(v1<0||w1<0)
+    return ERROR;
+  G.arcnum++; // 弧或边数加1
+  G.arcs[v1][w1] = G.arcs[w1][v1] = 1;
+  return OK;
+}
+
+Status DeleteArc(MGraph &G,VertexType v,VertexType w)
+{ // 初始条件: 图G存在,v和w是G中两个顶点
+  // 操作结果: 在G中删除弧<v,w>,若G是无向的,则还删除对称弧<w,v>
+  int v1,w1;
+  v1=LocateVex(G, v); // 尾
+  w1=LocateVex(G, w); // 头
+  if(v1<0||w1<0) // v1、w1的值不合法
+    return ERROR;
+  G.arcs[v1][w1] = G.arcs[w1][v1]=0;
+  G.arcnum--;    //修改边数
+  return OK;
+}
+void Display(MGraph G)
+{ // 输出无向图G
+  int i,j;
+  printf("%d个顶点%d条边的无向图\n",G.vexnum,G.arcnum);
+  for(i=0;i<G.vexnum;++i) // 输出G.vexs
+    printf("G.vexs[%d]=%s\n",i,G.vexs[i]);
+  printf("G.arcs:\n"); // 输出G.arcs.adj
+  for(i=0;i<G.vexnum;i++)
+  {
+    for(j=0;j<G.vexnum;j++)
+      printf("%2d",G.arcs[i][j]);
+    printf("\n");
+  }
+}
+
+int main()
+{
+  int i,j,k,n;
+  VertexType v1,v2;
+  MGraph g;
+  CreateAG(g);
+  Display(g);
+  printf("修改顶点的值，请输入原值 新值: \n");
+  scanf("%s%s",v1,v2);
+  PutVex(g,v1,v2);
+  printf("删除一条边或弧，请输入待删除边或弧的弧尾 弧头：\n");
+  scanf("%s%s",v1,v2);
+  DeleteArc(g,v1,v2);
+  Display(g);
+  printf("插入新顶点，请输入顶点的值: ");
+  scanf("%s",v1);
+  InsertVex(g,v1);
+  printf("\n插入与新顶点有关的边，请输入边数: ");
+  scanf("%d",&n);
+  for(k=0;k<n;k++)
+    {
+      printf("\n请输入另一顶点的值: ");
+      scanf("%s",v2);
+      InsertArc(g,v1,v2);
+    }
+  printf("\n");
+  Display(g);
+  printf("删除顶点及相关边，请输入顶点的值: ");
+  scanf("%s",v1);
+  printf("\n");
+  DeleteVex(g,v1);
+  Display(g);
+  DestroyGraph(g);
+  return 0;
+}
+```
+
+```c++
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+#define ERROR 0
+#define OK 1
+typedef  int  Status;
+
+ #define MAX_VERTEX_NUM 30 // 最大顶点个数
+ enum GraphKind{DG,DN,AG,AN}; // {有向图,有向网,无向图,无向网}
+
+ //图的邻接表存储表示
+ typedef char VertexType[6];
+ struct ArcNode
+ {
+   int adjvex; // 该弧所指向的顶点的位置
+   ArcNode *nextarc; // 指向下一条弧的指针
+   int info; // 网的权值
+ }; // 表结点
+ typedef struct
+ {
+   VertexType data; // 顶点信息
+   ArcNode *firstarc; // 第一个表结点的地址,指向第一条依附该顶点的弧的指针
+ }VNode,AdjList[MAX_VERTEX_NUM]; // 头结点
+ struct ALGraph
+ {
+   AdjList vertices;
+   int vexnum,arcnum; // 图的当前顶点数和弧数
+   int kind; // 图的种类标志
+ };
+
+ int LocateVex(ALGraph G,VertexType u)
+ { // 初始条件: 图G存在,u和G中顶点有相同特征
+   // 操作结果: 若G中存在顶点u,则返回该顶点在图中位置;否则返回-1
+   int i;
+   for(i=0;i<G.vexnum;++i)
+     if(strcmp(G.vertices[i].data, u) == 0)
+       return i;
+   return -1;
+ }
+
+ Status CreateGraph(ALGraph &G)
+ { //采用头插法,构造有向网
+   int i,j,k;
+   int w; // 权值
+   VertexType va,vb;
+   ArcNode *p;
+   G.kind=DN;
+   printf("请输入图的顶点数,弧数: ");
+   scanf("%d,%d",&G.vexnum, &G.arcnum);
+   printf("\n请输入%d个顶点的值:\n",G.vexnum);
+   for(i=0;i<G.vexnum;++i) // 构造顶点向量
+   {
+     scanf("%s",G.vertices[i].data);
+     G.vertices[i].firstarc=0;
+   }
+   printf("请依次输入每条弧弧尾和弧头、权值(以空格作为间隔):\n");
+   for(k=0;k<G.arcnum;++k) // 构造表结点链表
+   {
+     scanf("%s%s%d",va,vb,&w);
+     i=LocateVex(G, va); // 弧尾
+     j=LocateVex(G, vb); // 弧头
+     p=(ArcNode*)malloc(sizeof(ArcNode));
+     p->adjvex=j;
+     p->info=w;
+     p->nextarc=G.vertices[i].firstarc; // 插在表头
+     G.vertices[i].firstarc=p;
+   }
+   return OK;
+ }
+
+ void DestroyGraph(ALGraph &G)
+ { // 初始条件: 图G存在。操作结果: 销毁图G
+   int i;
+   ArcNode *p,*q;
+   for(i=0;i<G.vexnum;++i)
+   {
+     p=G.vertices[i].firstarc;
+     while(p)
+     {
+       q=p->nextarc;
+       free(p);
+       p=q;
+     }
+   }
+     G.vexnum=0;
+   G.arcnum=0;
+ }
+
+  Status PutVex(ALGraph &G,VertexType v,VertexType value)
+ { // 初始条件: 图G存在,v是G中某个顶点
+   // 操作结果: 对v赋新值value
+   int i;
+   i=LocateVex(G, v);
+   if(i>-1) // v是G的顶点
+   {
+      strcpy(G.vertices[i].data, value);
+     return OK;
+   }
+   return ERROR;
+ }
+
+ int FirstAdjVex(ALGraph G,VertexType v)
+ { // 初始条件: 图G存在,v是G中某个顶点
+   // 操作结果: 返回v的第一个邻接顶点的序号。若顶点在G中没有邻接顶点,则返回-1
+   ArcNode *p;
+   int v1;
+   v1=LocateVex(G, v); // v1为顶点v在图G中的序号
+   p=G.vertices[v1].firstarc;
+   if(p)
+     return ____16____;
+   else
+     return -1;
+ }
+
+ int NextAdjVex(ALGraph G,VertexType v,VertexType w)
+ { // 初始条件: 图G存在,v是G中某个顶点,w是v的邻接顶点
+   // 操作结果: 返回v的(相对于w的)下一个邻接顶点的序号。
+   //           若w是v的最后一个邻接点,则返回-1
+   ArcNode *p;
+   int v1,w1;
+   v1=____17____; // v1为顶点v在图G中的序号
+   w1=____18____; // w1为顶点w在图G中的序号
+   p=G.vertices[v1].firstarc;
+   while(____19____) // 指针p不空且所指表结点不是w
+     p=p->nextarc;
+   if(!p||!p->nextarc) // 没找到w或w是最后一个邻接点
+     return -1;
+   else
+     return ____20____; // 返回v的(相对于w的)下一个邻接顶点的序号
+ }
+
+ void InsertVex(ALGraph &G,VertexType v)
+ { // 初始条件: 图G存在,v和图中顶点有相同特征
+   // 操作结果: 在图G中增添新顶点v(不增添与顶点相关的弧,留待InsertArc()去做)
+   strcpy(G.vertices[G.vexnum].data,v); // 构造新顶点向量
+   ____21____;
+   ____22____; // 图G的顶点数加1
+ }
+
+ Status DeleteVex(ALGraph &G,VertexType v)
+ { // 初始条件: 图G存在,v是G中某个顶点
+   // 操作结果: 删除G中顶点v及其相关的弧
+   int i,j;
+   ArcNode *p,*q;
+   j=____23____; // j是顶点v的序号
+   if(j<0) // v不是图G的顶点
+     return ERROR;
+   p=____24____; // 删除以v为出度的弧
+   while(p)
+   {
+     ____25____;
+     p=p->nextarc;
+     free(q);
+     ____26____; // 弧或边数减1
+   }
+   ____27____; // 顶点数减1
+   for(____28____;i<G.vexnum;i++) // 顶点v后面的顶点前移
+     G.vertices[i]=G.vertices[i+1];
+   for(i=0;i<G.vexnum;i++) // 删除以v为入度的弧且必要时修改表结点的顶点位置值
+   {
+     p=G.vertices[i].firstarc; // 指向第1条弧
+     while(p) // 有弧
+     {
+       if(p->adjvex==j)
+       {
+         if(p==G.vertices[i].firstarc) // 待删结点是第1个结点
+         {
+           ____29____;
+           free(p);
+           p=____30____;
+           G.arcnum--; // 弧数减1
+         }
+         else
+         {
+          ____31____;
+           free(p);
+           p=____32____;
+           G.arcnum--; // 弧减1
+         }
+       }
+       else
+       {
+         if(____33____)
+           p->adjvex--; // 修改表结点的顶点位置值(序号)
+         q=p;
+         p=p->nextarc;
+       }
+     }
+   }
+   return OK;
+ }
+
+ Status InsertArc(ALGraph &G,VertexType v,VertexType w)
+ { // 初始条件: 图G存在,v和w是G中两个顶点
+   // 操作结果: 在G中增添弧<v,w>
+   ArcNode *p;
+   int w1,i,j;
+   i=____34____; // 弧尾的序号
+   j=____35____; // 弧头的序号
+   if(i<0||j<0)
+     return ERROR;
+   G.arcnum++; // 图G的弧或边的数目加1
+   printf("\n请输入弧%s→%s的权值: ",v,w);
+   scanf("%d",&w1);
+   p=(ArcNode*)malloc(sizeof(ArcNode));
+   p->adjvex=____36____;
+   p->info=____37____;
+   p->nextarc=____38____; // 插在表头
+   G.vertices[i].firstarc=____39____;
+   return OK;
+ }
+
+ Status DeleteArc(ALGraph &G,VertexType v,VertexType w)
+ { // 初始条件: 图G存在,v和w是G中两个顶点
+   // 操作结果: 在G中删除弧<v,w>
+   ArcNode *p,*q;
+   int i,j;
+   i=____40____; // i是顶点v(弧尾)的序号
+   j=____41____; // j是顶点w(弧头)的序号
+   if(i<0||j<0||i==j)
+     return ERROR;
+   p=G.vertices[i].firstarc; // p指向顶点v的第一条出弧
+   while(____42____) // p不空且所指之弧不是待删除弧<v,w>
+   { // p指向下一条弧
+     q=p;
+     p=p->nextarc;
+   }
+   if(____43____) // 找到弧<v,w>
+   {
+     if(p==G.vertices[i].firstarc) // p所指是第1条弧
+       ____44____; // 指向下一条弧
+     else
+       ____45____; // 指向下一条弧
+     free(p); // 释放此结点
+     G.arcnum--; // 弧或边数减1
+   }
+   return OK;
+ }
+
+void Display(ALGraph G)
+ { // 输出图的邻接矩阵G
+   int i;
+   ArcNode *p;
+   printf("%d个顶点：\n",G.vexnum);
+   for(i=0;i<G.vexnum;++i)
+     printf("%s ",G.vertices[i].data);
+   printf("\n%d条弧:\n",G.arcnum);
+   for(i=0;i<G.vexnum;i++)
+   {
+     p=G.vertices[i].firstarc;
+     while(p)
+     {
+        printf("%s→%s ",G.vertices[i].data,G.vertices[p->adjvex].data);
+        printf(":%d ",p->info);
+        p=p->nextarc;
+        printf("\n");
+     }
+   }
+ }
+
+int main()
+ {
+   int i,j,k,n;
+   ALGraph g;
+   VertexType v1,v2;
+   CreateGraph(g);
+   Display(g);
+   printf("删除一条弧，请输入待删除弧的弧尾 弧头：");
+   scanf(" %s%s",v1,v2);
+   DeleteArc(g,v1,v2);
+   printf("\n修改顶点的值，请输入原值 新值: ");
+   scanf(" %s%s",v1,v2);
+   PutVex(g,v1,v2);
+   printf("\n插入新顶点，请输入顶点的值: ");
+   scanf("%s",v1);
+   InsertVex(g,v1);
+   printf("\n插入与新顶点有关的弧，请输入弧数: ");
+   scanf("%d",&n);
+   for(k=0;k<n;k++)
+   {
+     printf("\n请输入另一顶点的值: ");
+     scanf("%s",v2);
+     InsertArc(g,v2,v1);
+   }
+   printf("\n");
+   Display(g);
+   printf("删除顶点及相关的弧，请输入顶点的值: ");
+   scanf("%s",v1);
+   DeleteVex(g,v1);
+   printf("\n");
+   Display(g);
+   DestroyGraph(g);
+   return 0;
+ }
+```
 ### 遍历
 #### 深度优先和广度优先
 
