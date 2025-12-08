@@ -11,6 +11,7 @@ nav:
 menu:
   Home: / || fas fa-home
   Bangumis: /bangumis/ || fas fa-Bangumis
+  ceshiL: /test/ZONE/1.html || fas fa-test
   # Archives: /archives/ || fas fa-archive
   # Tags: /tags/ || fas fa-tags
   # Categories: /categories/ || fas fa-folder-open
