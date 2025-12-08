@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>瑞士轮比赛竞猜</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 自定义配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            accent: '#722ED1',
+            neutral: '#1D2129',
+            light: '#F2F3F5',
+            danger: '#F53F3F',
+            warning: '#FF7D00',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .team-card {
+        @apply bg-white rounded-lg shadow-md p-3 cursor-grab transition-all duration-300 hover:shadow-lg hover:scale-105 border border-gray-200 relative z-10;
+      }
+      .team-card-dragging {
+        @apply opacity-50 scale-95 cursor-grabbing shadow-xl z-50;
+      }
+      .drop-zone {
+        @apply border-2 border-dashed border-gray-300 rounded-lg p-4 min-h-[120px] transition-all duration-200 hover:border-primary/70 hover:bg-primary/5 relative;
+      }
+      .drop-zone-active {
+        @apply border-primary bg-primary/10 scale-[1.01] shadow-sm;
+      }
+      .drop-zone-full {
+        @apply border-danger bg-danger/5 cursor-not-allowed;
+      }
+      .drop-zone-full.drop-zone-active {
+        @apply border-danger bg-danger/10;
+      }
+      .score-card {
+        @apply bg-white rounded-lg shadow-sm p-4 mb-4 border border-gray-200;
+      }
+      .counter-badge {
+        @apply bg-primary text-white text-xs px-2 py-1 rounded-full absolute top-2 right-2 transition-colors duration-200;
+      }
+      .counter-badge-full {
+        @apply bg-danger;
+      }
+      .dragged-team-preview {
+        @apply opacity-70 pointer-events-none;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+  <!-- 头部 -->
+  <header class="bg-primary text-white py-4 shadow-md">
+    <div class="container mx-auto px-4">
+      <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold flex items-center">
+        <i class="fa fa-trophy mr-3"></i>瑞士轮比赛竞猜
+      </h1>
+      <p class="text-primary-100 mt-1">拖动队伍图标到对应比分区域进行竞猜（有数量限制）</p>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8">
+    <!-- 比赛信息 -->
+    <div class="mb-8 bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-semibold text-neutral mb-2">比赛规则说明</h2>
+      <p class="text-gray-600 mb-4">
+        本次瑞士轮比赛共有16支队伍参赛，您可以通过拖拽队伍图标到对应的比分区域，预测每支队伍的最终成绩。
+        <strong class="text-danger">数量限制：</strong>
+        3-0（最多2支）、3-1/3-2（合并区域，最多6支）、0-3（最多2支）。
+      </p>
+      <button id="resetBtn" class="bg-danger text-white px-4 py-2 rounded hover:bg-danger/90 transition-colors active:scale-95">
+        <i class="fa fa-refresh mr-2"></i>重置所有竞猜
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <!-- 队伍列表 -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-md p-4 sticky top-4">
+          <h3 class="text-lg font-semibold mb-4 flex items-center">
+            <i class="fa fa-users text-primary mr-2"></i>参赛队伍
+          </h3>
+          <div id="teamList" class="grid grid-cols-2 gap-3">
+            <!-- 队伍卡片会通过JS动态生成 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 竞猜区域 -->
+      <div class="lg:col-span-3">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- 3-0 区域 -->
+          <div class="score-card relative">
+            <div id="counter3-0" class="counter-badge">0/2</div>
+            <h3 class="text-lg font-semibold mb-3 flex items-center">
+              <i class="fa fa-trophy text-accent mr-2"></i>3-0 (全胜)
+            </h3>
+            <div id="zone3-0" class="drop-zone" data-score="3-0" data-max="2">
+              <p class="text-gray-500 text-center transition-opacity duration-200">拖放队伍到这里</p>
+              <div class="dropped-teams flex flex-wrap gap-2 mt-2"></div>
+            </div>
+          </div>
+
+          <!-- 3-1/3-2 合并区域 -->
+          <div class="score-card relative">
+            <div id="counter3-1-3-2" class="counter-badge">0/6</div>
+            <h3 class="text-lg font-semibold mb-3 flex items-center">
+              <i class="fa fa-star text-secondary mr-2"></i>3-1/3-2
+            </h3>
+            <div id="zone3-1-3-2" class="drop-zone" data-score="3-1-3-2" data-max="6">
+              <p class="text-gray-500 text-center transition-opacity duration-200">拖放队伍到这里</p>
+              <div class="dropped-teams flex flex-wrap gap-2 mt-2"></div>
+            </div>
+          </div>
+
+          <!-- 0-3 区域 -->
+          <div class="score-card relative">
+            <div id="counter0-3" class="counter-badge">0/2</div>
+            <h3 class="text-lg font-semibold mb-3 flex items-center">
+              <i class="fa fa-times-circle text-danger mr-2"></i>0-3 (全负)
+            </h3>
+            <div id="zone0-3" class="drop-zone" data-score="0-3" data-max="2">
+              <p class="text-gray-500 text-center transition-opacity duration-200">拖放队伍到这里</p>
+              <div class="dropped-teams flex flex-wrap gap-2 mt-2"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 竞猜结果预览 -->
+        <div class="mt-6 bg-white rounded-lg shadow-md p-6">
+          <h3 class="text-lg font-semibold mb-4 flex items-center">
+            <i class="fa fa-list-alt text-primary mr-2"></i>竞猜结果
+          </h3>
+          <div id="predictionResult" class="space-y-3">
+            <div class="p-2 bg-gray-100 rounded">
+              <p class="text-gray-600">尚未进行任何竞猜</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-neutral text-white py-6 mt-12">
+    <div class="container mx-auto px-4 text-center">
+      <p>© 2025 瑞士轮比赛竞猜系统 | 所有权利保留</p>
+    </div>
+  </footer>
+
+  <script>
+    // 16支队伍数据
+    const teams = [
+      { id: 1, name: '队伍1', icon: 'https://picsum.photos/seed/team1/60/60' },
+      { id: 2, name: '队伍2', icon: 'https://picsum.photos/seed/team2/60/60' },
+      { id: 3, name: '队伍3', icon: 'https://picsum.photos/seed/team3/60/60' },
+      { id: 4, name: '队伍4', icon: 'https://picsum.photos/seed/team4/60/60' },
+      { id: 5, name: '队伍5', icon: 'https://picsum.photos/seed/team5/60/60' },
+      { id: 6, name: '队伍6', icon: 'https://picsum.photos/seed/team6/60/60' },
+      { id: 7, name: '队伍7', icon: 'https://picsum.photos/seed/team7/60/60' },
+      { id: 8, name: '队伍8', icon: 'https://picsum.photos/seed/team8/60/60' },
+      { id: 9, name: '队伍9', icon: 'https://picsum.photos/seed/team9/60/60' },
+      { id: 10, name: '队伍10', icon: 'https://picsum.photos/seed/team10/60/60' },
+      { id: 11, name: '队伍11', icon: 'https://picsum.photos/seed/team11/60/60' },
+      { id: 12, name: '队伍12', icon: 'https://picsum.photos/seed/team12/60/60' },
+      { id: 13, name: '队伍13', icon: 'https://picsum.photos/seed/team13/60/60' },
+      { id: 14, name: '队伍14', icon: 'https://picsum.photos/seed/team14/60/60' },
+      { id: 15, name: '队伍15', icon: 'https://picsum.photos/seed/team15/60/60' },
+      { id: 16, name: '队伍16', icon: 'https://picsum.photos/seed/team16/60/60' },
+    ];
+
+    // 存储已放置的队伍
+    let placedTeams = {};
+    // 当前拖拽的队伍ID
+    let currentDraggingTeamId = null;
+    
+    // 区域配置
+    const zoneConfig = {
+      '3-0': { max: 2, label: '3-0 (全胜)' },
+      '3-1-3-2': { max: 6, label: '3-1/3-2' },
+      '0-3': { max: 2, label: '0-3 (全负)' }
+    };
+
+    // 初始化队伍列表
+    function initTeamList() {
+      const teamList = document.getElementById('teamList');
+      teamList.innerHTML = '';
+      
+      teams.forEach(team => {
+        const teamCard = document.createElement('div');
+        teamCard.className = 'team-card';
+        teamCard.draggable = true;
+        teamCard.dataset.teamId = team.id;
+        
+        teamCard.innerHTML = `
+          <div class="flex flex-col items-center">
+            <img src="${team.icon}" alt="${team.name}" class="w-12 h-12 rounded-full object-cover mb-1">
+            <span class="text-xs text-center truncate">${team.name}</span>
+          </div>
+        `;
+        
+        // 拖拽事件
+        teamCard.addEventListener('dragstart', handleDragStart);
+        teamCard.addEventListener('dragend', handleDragEnd);
+        // 防止拖拽文本
+        teamCard.addEventListener('drag', (e) => e.preventDefault());
+        
+        teamList.appendChild(teamCard);
+      });
+    }
+
+    // 初始化拖放区域
+    function initDropZones() {
+      const dropZones = document.querySelectorAll('.drop-zone');
+      
+      dropZones.forEach(zone => {
+        // 阻止默认行为以允许放置
+        zone.addEventListener('dragover', handleDragOver);
+        zone.addEventListener('dragenter', handleDragEnter);
+        zone.addEventListener('dragleave', handleDragLeave);
+        zone.addEventListener('drop', handleDrop);
+        
+        // 优化移动端触摸体验
+        zone.addEventListener('touchmove', (e) => e.preventDefault());
+      });
+      
+      // 初始化计数器
+      updateZoneCounters();
+      // 初始化空状态文本
+      updateEmptyZoneText();
+    }
+
+    // 更新区域空状态文本
+    function updateEmptyZoneText() {
+      document.querySelectorAll('.drop-zone').forEach(zone => {
+        const droppedTeams = zone.querySelector('.dropped-teams');
+        const emptyText = zone.querySelector('p');
+        
+        if (droppedTeams.children.length > 0) {
+          emptyText.classList.add('opacity-0');
+        } else {
+          emptyText.classList.remove('opacity-0');
+        }
+      });
+    }
+
+    // 更新区域计数器
+    function updateZoneCounters() {
+      // 计算各区域的队伍数量
+      const zoneCounts = {
+        '3-0': 0,
+        '3-1-3-2': 0,
+        '0-3': 0
+      };
+      
+      // 统计数量
+      Object.values(placedTeams).forEach(score => {
+        if (zoneCounts.hasOwnProperty(score)) {
+          zoneCounts[score]++;
+        }
+      });
+      
+      // 更新计数器显示
+      Object.entries(zoneCounts).forEach(([zoneId, count]) => {
+        const counter = document.getElementById(`counter${zoneId}`);
+        const max = zoneConfig[zoneId].max;
+        counter.textContent = `${count}/${max}`;
+        
+        // 根据数量改变计数器样式
+        if (count >= max) {
+          counter.classList.add('counter-badge-full');
+        } else {
+          counter.classList.remove('counter-badge-full');
+        }
+        
+        // 更新拖放区域样式
+        const zone = document.getElementById(`zone${zoneId}`);
+        if (count >= max) {
+          zone.classList.add('drop-zone-full');
+        } else {
+          zone.classList.remove('drop-zone-full');
+        }
+      });
+    }
+
+    // 拖拽开始
+    function handleDragStart(e) {
+      // 修复拖拽数据传递
+      e.dataTransfer.setData('text/plain', e.currentTarget.dataset.teamId);
+      e.dataTransfer.effectAllowed = 'move';
+      
+      // 记录当前拖拽的队伍ID
+      currentDraggingTeamId = e.currentTarget.dataset.teamId;
+      
+      // 添加拖拽样式
+      const teamCard = e.currentTarget;
+      teamCard.classList.add('team-card-dragging');
+      
+      // 优化拖拽视觉效果
+      setTimeout(() => {
+        teamCard.style.opacity = '0.4';
+      }, 10);
+      
+      // 自定义拖拽预览（可选）
+      if (e.dataTransfer.setDragImage) {
+        const img = new Image();
+        img.src = teams.find(t => t.id == currentDraggingTeamId).icon;
+        e.dataTransfer.setDragImage(img, 30, 30);
+      }
+    }
+
+    // 拖拽结束
+    function handleDragEnd(e) {
+      // 重置拖拽状态
+      currentDraggingTeamId = null;
+      
+      // 移除拖拽样式
+      const teamCard = e.currentTarget;
+      teamCard.classList.remove('team-card-dragging');
+      teamCard.style.opacity = '1';
+      
+      // 移除所有区域的激活状态
+      document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.classList.remove('drop-zone-active');
+      });
+    }
+
+    // 拖拽悬停 - 关键修复
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = 'move';
+      return false;
+    }
+
+    // 进入拖放区域 - 修复激活状态
+    function handleDragEnter(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const dropZone = e.target.closest('.drop-zone');
+      if (dropZone) {
+        // 防止重复触发
+        if (e.target === dropZone || e.target.parentElement === dropZone) {
+          dropZone.classList.add('drop-zone-active');
+        }
+      }
+    }
+
+    // 离开拖放区域 - 修复状态重置
+    function handleDragLeave(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const dropZone = e.target.closest('.drop-zone');
+      if (dropZone) {
+        // 检查鼠标是否真的离开区域
+        const rect = dropZone.getBoundingClientRect();
+        const isOutside = (
+          e.clientX < rect.left || 
+          e.clientX > rect.right || 
+          e.clientY < rect.top || 
+          e.clientY > rect.bottom
+        );
+        
+        if (isOutside) {
+          dropZone.classList.remove('drop-zone-active');
+        }
+      }
+    }
+
+    // 放置处理 - 核心修复
+    function handleDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // 移除所有区域的激活状态
+      document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.classList.remove('drop-zone-active');
+      });
+      
+      const dropZone = e.target.closest('.drop-zone');
+      if (!dropZone) return;
+      
+      const teamId = e.dataTransfer.getData('text/plain');
+      if (!teamId) return;
+      
+      const score = dropZone.dataset.score;
+      const maxTeams = parseInt(dropZone.dataset.max);
+      
+      // 计算当前区域的队伍数量（排除当前拖拽的队伍）
+      let currentCount = 0;
+      Object.entries(placedTeams).forEach(([tid, s]) => {
+        if (s === score && tid !== teamId) {
+          currentCount++;
+        }
+      });
+      
+      // 检查是否超过最大数量
+      if (currentCount >= maxTeams) {
+        // 显示友好提示
+        const zoneLabel = zoneConfig[score].label;
+        alert(`${zoneLabel} 区域已达上限（${maxTeams}支队伍），无法添加新队伍！`);
+        return;
+      }
+      
+      // 如果队伍已被放置，先移除原有位置
+      if (placedTeams[teamId]) {
+        const prevZone = document.querySelector(`#zone${placedTeams[teamId]} .dropped-teams`);
+        const prevTeamElement = prevZone.querySelector(`[data-team-id="${teamId}"]`);
+        if (prevTeamElement) prevTeamElement.remove();
+      }
+      
+      // 记录新位置
+      placedTeams[teamId] = score;
+      
+      // 获取队伍信息
+      const team = teams.find(t => t.id == teamId);
+      
+      // 创建放置的队伍元素
+      const teamElement = document.createElement('div');
+      teamElement.className = 'bg-white rounded-md p-1 shadow-sm border border-gray-200 flex items-center transition-all duration-200 hover:scale-105 hover:shadow-md';
+      teamElement.dataset.teamId = teamId;
+      teamElement.innerHTML = `
+        <img src="${team.icon}" alt="${team.name}" class="w-8 h-8 rounded-full mr-1">
+        <span class="text-xs">${team.name}</span>
+        <button class="ml-1 text-gray-400 hover:text-danger remove-team transition-colors">
+          <i class="fa fa-times"></i>
+        </button>
+      `;
+      
+      // 添加移除按钮事件
+      teamElement.querySelector('.remove-team').addEventListener('click', function() {
+        // 添加移除动画
+        this.closest('[data-team-id]').classList.add('scale-90', 'opacity-0');
+        setTimeout(() => {
+          this.closest('[data-team-id]').remove();
+          delete placedTeams[teamId];
+          updateZoneCounters();
+          updatePredictionResult();
+          updateEmptyZoneText();
+        }, 200);
+      });
+      
+      // 添加到拖放区域并添加动画
+      const droppedTeamsContainer = dropZone.querySelector('.dropped-teams');
+      teamElement.style.opacity = '0';
+      teamElement.style.transform = 'scale(0.9)';
+      droppedTeamsContainer.appendChild(teamElement);
+      
+      // 入场动画
+      setTimeout(() => {
+        teamElement.style.opacity = '1';
+        teamElement.style.transform = 'scale(1)';
+      }, 10);
+      
+      // 更新计数器、结果和空状态
+      updateZoneCounters();
+      updatePredictionResult();
+      updateEmptyZoneText();
+    }
+
+    // 更新竞猜结果
+    function updatePredictionResult() {
+      const resultContainer = document.getElementById('predictionResult');
+      resultContainer.innerHTML = '';
+      
+      // 按比分分组
+      const groupedTeams = {
+        '3-0': [],
+        '3-1-3-2': [],
+        '0-3': []
+      };
+      
+      // 填充分组数据
+      Object.entries(placedTeams).forEach(([teamId, score]) => {
+        const team = teams.find(t => t.id == teamId);
+        groupedTeams[score].push(team);
+      });
+      
+      // 生成结果HTML
+      let resultHtml = '';
+      let hasPredictions = false;
+      
+      Object.entries(groupedTeams).forEach(([score, teamsInScore]) => {
+        if (teamsInScore.length > 0) hasPredictions = true;
+        
+        resultHtml += `
+          <div class="p-3 bg-gray-50 rounded-lg transition-all duration-200 hover:bg-gray-100">
+            <h4 class="font-medium mb-2">${zoneConfig[score].label}:</h4>
+            ${teamsInScore.length > 0 ? 
+              `<div class="flex flex-wrap gap-2">
+                ${teamsInScore.map(team => `
+                  <div class="bg-white rounded px-2 py-1 text-sm border border-gray-200 flex items-center transition-all duration-200 hover:scale-105 hover:shadow-sm">
+                    <img src="${team.icon}" alt="${team.name}" class="w-6 h-6 rounded-full mr-1">
+                    ${team.name}
+                  </div>
+                `).join('')}
+              </div>` : 
+              '<p class="text-gray-500 text-sm">暂无队伍</p>'
+            }
+          </div>
+        `;
+      });
+      
+      // 显示空状态或结果
+      if (!hasPredictions) {
+        resultContainer.innerHTML = `
+          <div class="p-2 bg-gray-100 rounded">
+            <p class="text-gray-600">尚未进行任何竞猜</p>
+          </div>
+        `;
+      } else {
+        resultContainer.innerHTML = resultHtml;
+      }
+    }
+
+    // 重置功能 - 优化动画
+    function initResetButton() {
+      const resetBtn = document.getElementById('resetBtn');
+      resetBtn.addEventListener('click', () => {
+        // 添加确认
+        if (!confirm('确定要重置所有竞猜结果吗？')) return;
+        
+        // 移除所有已放置的队伍（带动画）
+        document.querySelectorAll('.dropped-teams [data-team-id]').forEach(teamEl => {
+          teamEl.classList.add('scale-90', 'opacity-0');
+        });
+        
+        // 延迟重置数据
+        setTimeout(() => {
+          // 清空所有放置的队伍
+          placedTeams = {};
+          
+          // 清空所有拖放区域
+          document.querySelectorAll('.dropped-teams').forEach(container => {
+            container.innerHTML = '';
+          });
+          
+          // 更新计数器、结果和空状态
+          updateZoneCounters();
+          updatePredictionResult();
+          updateEmptyZoneText();
+          
+          // 提示
+          alert('所有竞猜已重置！');
+        }, 200);
+      });
+    }
+
+    // 全局事件修复
+    document.addEventListener('dragleave', (e) => {
+      if (e.target === document.body) {
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+          zone.classList.remove('drop-zone-active');
+        });
+      }
+    });
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      initTeamList();
+      initDropZones();
+      initResetButton();
+      updatePredictionResult();
+      
+      // 优化移动端体验
+      document.body.addEventListener('touchstart', () => {}, { passive: true });
+    });
+  </script>
+</body>
+</html>
