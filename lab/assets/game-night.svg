@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360" viewBox="0 0 480 360" role="img" aria-labelledby="title desc">
+<title id="title">夜晚游戏桌</title><desc id="desc">原创矢量插画。青蓝色夜晚，一台显示器发光，桌边放着手柄和台灯。</desc>
+<defs><linearGradient id="night" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#243858"/><stop offset="1" stop-color="#567e96"/></linearGradient><linearGradient id="screen" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#93daef"/><stop offset="1" stop-color="#6b9cc8"/></linearGradient></defs>
+<rect width="480" height="360" fill="url(#night)"/><path d="M0 285h480v75H0" fill="#36495c"/><path d="M0 285h480" stroke="#172a43" stroke-width="7"/>
+<rect x="24" y="34" width="108" height="154" rx="8" fill="#1b304c" stroke="#7195a3" stroke-width="6"/><path d="M78 36v148m-52-75h104" stroke="#7195a3" stroke-width="5"/><circle cx="100" cy="77" r="20" fill="#dfe7ca"/><g fill="#edf6ea"><circle cx="45" cy="59" r="2"/><circle cx="61" cy="81" r="2"/><circle cx="102" cy="152" r="2"/></g>
+<rect x="150" y="82" width="266" height="169" rx="16" fill="#1d3049" stroke="#10263b" stroke-width="8"/><rect x="161" y="93" width="244" height="147" rx="8" fill="url(#screen)"/>
+<circle cx="275" cy="140" r="46" fill="#ffdfa8" opacity=".84"/><path d="M162 207q48-44 92-16t66-11 84 4v56H162" fill="#6d83b2"/><path d="M162 218q55-18 95-5t83-4 64-13v44H162" fill="#475f8c"/>
+<path d="M242 251v24h76v-24" fill="#1d3049"/><rect x="216" y="269" width="129" height="12" rx="5" fill="#1d3049"/>
+<g transform="translate(243 288) rotate(-8)"><path d="M22 2Q2 2 0 25L0 46Q7 69 30 50l20-14h33l18 14q28 20 34-7l-4-24Q125 3 103 2Z" fill="#e0d9ed" stroke="#26384b" stroke-width="6"/><path d="M31 17v24m-12-12h25" stroke="#5c6a83" stroke-width="7" stroke-linecap="round"/><circle cx="93" cy="21" r="6" fill="#efacb2"/><circle cx="108" cy="31" r="6" fill="#efd999"/><circle cx="80" cy="33" r="6" fill="#97d3bf"/></g>
+<path d="M65 285v-36l-19-38" stroke="#e8d0a6" stroke-width="9" stroke-linecap="round"/><path d="M46 211l-16-24 28-20 26 37Z" fill="#f4d29f" stroke="#20344e" stroke-width="5"/><ellipse cx="67" cy="287" rx="31" ry="7" fill="#e8d0a6"/>
+<g fill="#f6efd7"><path d="m440 60 5 10 10 4-10 5-5 10-4-10-10-5 10-4Z"/><path d="m139 32 4 8 8 3-8 3-4 9-4-9-8-3 8-3Z"/></g>
+</svg>
