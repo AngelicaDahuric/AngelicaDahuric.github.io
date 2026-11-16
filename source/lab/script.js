@@ -25,6 +25,11 @@
     themeToggle.setAttribute('aria-label', dark ? '切换为浅色模式' : '切换为深色模式');
     themeToggle.querySelector('.theme-icon').textContent = dark ? '☀' : '☾';
     themeToggle.querySelector('.theme-label').textContent = dark ? '日间' : '夜间';
+    // Utterances 在 iframe 中运行，通过 postMessage 同步站点的主题模式。
+    const guestbookFrame = document.querySelector('.utterances-frame');
+    if (guestbookFrame && guestbookFrame.contentWindow) {
+      guestbookFrame.contentWindow.postMessage({ type: 'set-theme', theme: dark ? 'github-dark' : 'github-light' }, 'https://utteranc.es');
+    }
   }
   const storedTheme = readStore('thq-theme');
   const preferDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -121,62 +126,25 @@
   });
   setProject(0);
 
-  // 4. 留言演示：只写入浏览器 localStorage，绝不发送网络请求。
-  const notesKey = 'thq-demo-notes';
-  const noteForm = document.getElementById('note-form');
-  const nickname = document.getElementById('nickname');
-  const note = document.getElementById('note');
-  const message = document.getElementById('form-message');
-  function getNotes() {
-    try {
-      const parsed = JSON.parse(readStore(notesKey) || '[]');
-      return Array.isArray(parsed) ? parsed.slice(0, 3) : [];
-    } catch (_) { return []; }
-  }
-  function renderNotes() {
-    const items = getNotes();
-    const wrapper = document.getElementById('saved-notes');
-    const list = document.getElementById('notes-list');
-    wrapper.hidden = items.length === 0;
-    list.replaceChildren();
-    items.forEach(function (item) {
-      const li = document.createElement('li');
-      const name = document.createElement('strong');
-      name.textContent = String(item.name || '访客') + '：';
-      const content = document.createElement('span');
-      content.textContent = String(item.text || '');
-      li.append(name, content); // textContent 不会把用户输入解析成 HTML。
-      list.appendChild(li);
-    });
-  }
-  [nickname, note].forEach(function (field) {
-    field.addEventListener('input', function () { field.removeAttribute('aria-invalid'); message.textContent = ''; });
+  // 4. 留言区：复用 Butterfly 支持的 Utterances/GitHub Issues 方案。
+  // 此独立页面位于 source/lab/，不会经过 Hexo 模板渲染，因此在这里单独加载组件。
+  const guestbook = document.getElementById('guestbook-comments');
+  const guestbookScript = document.createElement('script');
+  guestbookScript.src = 'https://utteranc.es/client.js';
+  guestbookScript.async = true;
+  guestbookScript.crossOrigin = 'anonymous';
+  guestbookScript.setAttribute('repo', 'AngelicaDahuric/AngelicaDahuric.github.io');
+  guestbookScript.setAttribute('issue-term', 'pathname');
+  guestbookScript.setAttribute('label', 'guestbook');
+  guestbookScript.setAttribute('theme', document.body.classList.contains('dark-mode') ? 'github-dark' : 'github-light');
+  guestbookScript.addEventListener('load', function () {
+    const loading = guestbook.querySelector('.guestbook-loading');
+    if (loading) loading.remove();
   });
-  noteForm.addEventListener('submit', function (event) {
-    event.preventDefault();
-    const name = nickname.value.trim();
-    const text = note.value.trim();
-    if (name.length < 2) {
-      nickname.setAttribute('aria-invalid', 'true');
-      message.textContent = '请填写至少 2 个字的称呼。'; nickname.focus(); return;
-    }
-    if (text.length < 8) {
-      note.setAttribute('aria-invalid', 'true');
-      message.textContent = '留言至少需要 8 个字哦。'; note.focus(); return;
-    }
-    const items = getNotes();
-    items.unshift({ name: name.slice(0, 24), text: text.slice(0, 240) });
-    writeStore(notesKey, JSON.stringify(items.slice(0, 3)));
-    noteForm.reset();
-    nickname.removeAttribute('aria-invalid'); note.removeAttribute('aria-invalid');
-    message.textContent = '便签已经保存在当前浏览器！这只是本地演示，没有发送给网站作者。';
-    renderNotes();
+  guestbookScript.addEventListener('error', function () {
+    const loading = guestbook.querySelector('.guestbook-loading');
+    if (loading) loading.textContent = '留言区加载失败，请稍后重试，或通过下方链接打开 GitHub Issues。';
   });
-  document.getElementById('clear-notes').addEventListener('click', function () {
-    removeStore(notesKey);
-    renderNotes();
-    message.textContent = '本机便签记录已清空。';
-  });
-  renderNotes();
+  guestbook.appendChild(guestbookScript);
   document.getElementById('year').textContent = String(new Date().getFullYear());
 }());

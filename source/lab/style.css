@@ -1,4 +1,4 @@
-/* 好奇心研究所 - 原生 CSS，无需框架与外部网络资源 */
+/* 白芷的个人主页 - 原生 CSS；留言组件由 Utterances 提供 */
 :root {
   color-scheme: light;
   --bg: #faf9f6;
@@ -184,7 +184,7 @@ h1, h2, h3, p { margin-top: 0; }
 .kindness-link { display: inline-flex; align-items: center; gap: 20px; font-weight: 850; border-bottom: 2px solid currentColor; font-size: 13px; padding-bottom: 6px; margin-top: 7px; }
 .kindness-link:hover { color: #9a5f6e; }
 
-/* Local demo form */
+/* Guestbook powered by GitHub Issues */
 .contact-section { padding-block: 113px; }
 .contact-grid { display: grid; grid-template-columns: .75fr 1fr; gap: 12%; align-items: start; }
 .contact-intro { padding-top: 26px; }
@@ -192,22 +192,15 @@ h1, h2, h3, p { margin-top: 0; }
 .contact-doodle { color: #b3a1de; font-size: 48px; margin-top: 36px; transform: rotate(-9deg); }
 .contact-doodle span { letter-spacing: -13px; }
 .contact-form-wrap { min-width: 0; }
-#note-form { background: var(--surface); border: 2px solid var(--ink); border-radius: 16px; padding: 30px 34px 29px; box-shadow: 9px 10px 0 #e1d7f0; }
+.guestbook-card { background: var(--surface); border: 2px solid var(--ink); border-radius: 16px; padding: 30px 34px 29px; box-shadow: 9px 10px 0 #e1d7f0; }
 .form-title { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border); margin-bottom: 23px; padding-bottom: 15px; font: 800 12px ui-monospace, monospace; color: var(--accent-dark); letter-spacing: .05em; }
 .form-title span:last-child { font-size: 22px; }
-#note-form label { display: block; font-size: 12px; font-weight: 850; margin: 13px 0 7px; }
-#note-form input, #note-form textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 9px; padding: 12px 14px; outline: none; background: var(--bg); color: var(--ink); font-size: 13px; resize: vertical; }
-#note-form input:focus, #note-form textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(137, 118, 204, .15); }
-#note-form input[aria-invalid="true"], #note-form textarea[aria-invalid="true"] { border-color: #bb5467; }
-#note-form input::placeholder, #note-form textarea::placeholder { color: #8b8a94; }
-.form-info { font-size: 11px; color: var(--muted); margin: 11px 0 19px; }
-.submit-button { width: 100%; }.form-message { min-height: 16px; font-size: 12px; color: var(--accent-dark); margin: 18px 0 0; }
-.saved-notes { background: var(--surface); padding: 19px 20px; border: 1px dashed var(--accent); border-radius: 13px; margin-top: 25px; }
-.saved-title { display: flex; justify-content: space-between; gap: 20px; align-items: center; font-size: 12px; }
-.saved-title button { border: 0; background: none; color: var(--accent-dark); text-decoration: underline; font-size: 11px; }
-.saved-notes ul { list-style: none; padding: 0; margin: 12px 0 0; }
-.saved-notes li { padding: 9px 0; border-top: 1px solid var(--border); overflow-wrap: anywhere; font-size: 12px; color: var(--muted); }
-.saved-notes li strong { color: var(--ink); margin-right: 8px; }
+.guestbook-tip { margin-top: 14px; font-size: 12px !important; }
+#guestbook-comments { min-height: 155px; }
+#guestbook-comments .utterances { max-width: 100%; }
+.guestbook-loading, .guestbook-footnote { font-size: 12px; color: var(--muted); }
+.guestbook-footnote { margin: 20px 0 0; border-top: 1px dashed var(--border); padding-top: 15px; }
+.guestbook-footnote a { color: var(--accent-dark); text-decoration: underline; text-underline-offset: 3px; }
 .site-footer { border-top: 1px solid var(--border); padding: 28px 0; }
 .footer-inner { display: flex; align-items: center; gap: 20px; justify-content: space-between; font-size: 11px; color: var(--muted); }
 .footer-brand { font: 900 14px ui-monospace, monospace; color: var(--accent-dark); }.footer-brand:first-letter { font-size: 23px; }
@@ -224,8 +217,7 @@ body.dark-mode .project-status { background: #315344; color: #c7f4d2; }
 body.dark-mode .project-tags span { color: #e9e2ff; }
 body.dark-mode .kindness-section { background: #294136; color: #e2f0e5; }
 body.dark-mode .kindness-copy .section-kicker, body.dark-mode .kindness-copy h2 span, body.dark-mode .kindness-copy > p:not(.section-kicker) { color: #c2dfcb; }
-body.dark-mode #note-form { border-color: #a69bcf; box-shadow: 9px 10px 0 #3d3659; }
-body.dark-mode #note-form input::placeholder, body.dark-mode #note-form textarea::placeholder { color: #aaa7bb; }
+body.dark-mode .guestbook-card { border-color: #a69bcf; box-shadow: 9px 10px 0 #3d3659; }
 body.dark-mode .round-button:hover { background: #52456f; }
 
 @media (max-width: 1040px) {

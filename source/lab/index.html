@@ -154,15 +154,13 @@
 
     <section class="section contact-section" id="contact" aria-labelledby="contact-title">
       <div class="container contact-grid">
-        <div class="contact-intro"><p class="section-kicker">05 / LEAVE A NOTE</p><h2 id="contact-title">留张<span class="marker-highlight peach">小便签</span>吧！</h2><p>想写点什么都可以。不过这里暂时只是网页功能演示：留言只会保存在你自己的浏览器里，我实际上收不到。</p><div class="contact-doodle" aria-hidden="true">✉ <span>〰〰</span> ✧</div></div>
-        <div class="contact-form-wrap"><form id="note-form" novalidate>
+        <div class="contact-intro"><p class="section-kicker">05 / LEAVE A NOTE</p><h2 id="contact-title">留张<span class="marker-highlight peach">小便签</span>吧！</h2><p>想说什么都可以。这里接的是 GitHub 评论，留言会公开显示在页面上，我也可以看到并回复。</p><p class="guestbook-tip">需要用 GitHub 账号登录才能留言。如果评论框没有加载出来，可以从下方链接打开留言区。</p><div class="contact-doodle" aria-hidden="true">✉ <span>〰〰</span> ✧</div></div>
+        <div class="contact-form-wrap"><div class="guestbook-card">
           <div class="form-title"><span>TO: 白芷</span><span aria-hidden="true">✳</span></div>
-          <label for="nickname">怎么称呼你？</label><input id="nickname" name="nickname" type="text" maxlength="24" autocomplete="nickname" placeholder="例如：一位路过的朋友" required>
-          <label for="note">想说点什么？</label><textarea id="note" name="note" rows="4" maxlength="240" placeholder="今天发现了一件有意思的事……" required></textarea>
-          <p class="form-info" id="form-info">至少输入 2 个字的称呼和 8 个字的留言。仅本机保存，不联网提交。</p>
-          <button class="button button-primary submit-button" type="submit">把便签贴上去 <span aria-hidden="true">↗</span></button>
-          <p class="form-message" id="form-message" role="status" aria-live="polite"></p>
-        </form><div class="saved-notes" id="saved-notes" hidden><div class="saved-title"><strong>本机保存的便签</strong><button type="button" id="clear-notes">清空记录</button></div><ul id="notes-list"></ul></div></div>
+          <div id="guestbook-comments" aria-label="GitHub 留言区"><p class="guestbook-loading">正在加载留言区……</p></div>
+          <p class="guestbook-footnote">留言由 GitHub Issues 保存与管理。<a href="https://github.com/AngelicaDahuric/AngelicaDahuric.github.io/issues" target="_blank" rel="noopener noreferrer">去 GitHub 查看留言 ↗</a></p>
+          <noscript><p class="guestbook-footnote">请开启 JavaScript 后使用评论功能。</p></noscript>
+        </div></div>
       </div>
     </section>
   </main>
