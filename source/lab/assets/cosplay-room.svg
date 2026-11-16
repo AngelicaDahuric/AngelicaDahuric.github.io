@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360" viewBox="0 0 480 360" role="img" aria-labelledby="title desc">
+<title id="title">Cosplay 创作空间</title><desc id="desc">原创矢量插画。紫粉色更衣间里有梳妆镜、衣架和星形装饰。</desc>
+<defs><linearGradient id="wall" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#ebe0fa"/><stop offset="1" stop-color="#d6c8ef"/></linearGradient><linearGradient id="mirror" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e6ecff"/><stop offset="1" stop-color="#c7bddf"/></linearGradient></defs>
+<rect width="480" height="360" fill="url(#wall)"/><path d="M0 0h65v360H0M415 0h65v360h-65" fill="#cfb9dd" opacity=".45"/>
+<path d="M0 295h480v65H0" fill="#bda7cd"/><path d="M0 295h480" stroke="#9d82b4" stroke-width="5"/>
+<rect x="101" y="39" width="216" height="262" rx="100" fill="#fdf4ee" stroke="#9b80b8" stroke-width="10"/><rect x="120" y="58" width="178" height="225" rx="89" fill="url(#mirror)" stroke="#fff9f0" stroke-width="5"/>
+<path d="M134 218Q209 165 285 208V269H134Z" fill="#d8b7d0"/>
+<path d="M187 135q-18-30 12-50 31-18 51 14t-2 48l16 37q-52 41-99 0Z" fill="#9c74ab" stroke="#694f8a" stroke-width="4"/>
+<ellipse cx="217" cy="141" rx="30" ry="42" fill="#f3c6ba"/><path d="M188 135q-5-50 33-49 33 2 27 58-13-16-20-34-10 16-40 25Z" fill="#9c74ab"/>
+<path d="M188 179q25 25 60 0l24 77H162Z" fill="#f9d6e6" stroke="#9f80b7" stroke-width="4"/><path d="M202 183l15 24 17-24" fill="none" stroke="#ba89aa" stroke-width="5"/>
+<rect x="329" y="63" width="112" height="9" rx="4" fill="#846a9c"/><path d="M348 71v35m49-35v36" stroke="#846a9c" stroke-width="5"/><path d="M347 102q22-13 46 0l17 72h-81Z" fill="#f5b6c2" stroke="#8b698d" stroke-width="4"/><path d="M365 105v67" stroke="#fce5df" stroke-width="6"/><path d="m398 106 16 45" stroke="#8b698d" stroke-width="4"/>
+<g transform="translate(330 214)"><rect x="0" y="49" width="104" height="52" rx="8" fill="#fff4e9" stroke="#947ba9" stroke-width="5"/><rect x="12" y="5" width="82" height="45" rx="9" fill="#f1c5d5" stroke="#947ba9" stroke-width="4"/><path d="M23 31h57" stroke="#fff3eb" stroke-width="5"/><circle cx="52" cy="76" r="14" fill="#d0b0d7"/></g>
+<g fill="#fffaea" stroke="#9b7db2" stroke-width="2"><path d="m62 85 9 18 19 8-19 8-9 19-8-19-18-8 18-8Z"/><path d="m398 16 6 12 12 6-12 5-6 13-5-13-12-5 12-6Z"/><path d="m51 218 7 14 15 6-15 7-7 14-7-14-14-7 14-6Z"/></g>
+</svg>

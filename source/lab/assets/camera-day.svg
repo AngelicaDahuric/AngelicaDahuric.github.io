@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360" viewBox="0 0 480 360" role="img" aria-labelledby="title desc">
+<title id="title">落日摄影桌</title><desc id="desc">原创矢量插画。落日透过窗户，桌上放着相机和即时成像照片。</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fce5dd"/><stop offset="1" stop-color="#f6bdbe"/></linearGradient><linearGradient id="sun" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#ed8f87"/><stop offset="1" stop-color="#ffd69b"/></linearGradient></defs>
+<rect width="480" height="360" fill="url(#bg)"/><circle cx="71" cy="68" r="52" fill="#f7d1c0" opacity=".7"/>
+<rect x="91" y="29" width="298" height="216" rx="147" fill="#fff4e8" stroke="#c88383" stroke-width="6"/><path d="M100 184V154q137 19 280-15v77q-125 37-280-4Z" fill="#e1b0a9"/>
+<circle cx="239" cy="125" r="70" fill="url(#sun)"/><path d="M96 188q53-36 111-3t87-8 95 12v49H96" fill="#c48e9b"/><path d="M96 212q42-20 85-3t89 0 118-2v38H96" fill="#967b95"/>
+<path d="M241 30v214" stroke="#c88383" stroke-width="6"/><path d="M92 244h298" stroke="#c88383" stroke-width="6"/>
+<path d="M0 265h480v95H0" fill="#c78c83"/><path d="M0 265h480" stroke="#805866" stroke-width="7"/>
+<g transform="translate(102 219) rotate(-8)"><rect width="92" height="114" rx="5" fill="#fffaf2" stroke="#8a6471" stroke-width="3"/><rect x="10" y="11" width="72" height="76" fill="#d7bcbd"/><circle cx="47" cy="45" r="24" fill="#f8d1a4"/><path d="M10 72 30 48l18 14 15-21 19 25v21H10" fill="#a0a8b5"/><path d="M30 100h33" stroke="#c7acac" stroke-width="3"/></g>
+<g transform="translate(257 223)"><rect x="0" y="28" width="128" height="83" rx="14" fill="#594955" stroke="#3b334b" stroke-width="5"/><rect x="23" y="17" width="54" height="25" rx="7" fill="#594955" stroke="#3b334b" stroke-width="4"/><rect x="92" y="19" width="20" height="14" rx="4" fill="#e5a4a3"/><circle cx="62" cy="66" r="30" fill="#c7a4a1" stroke="#3b334b" stroke-width="6"/><circle cx="62" cy="66" r="18" fill="#655b68"/><circle cx="57" cy="60" r="8" fill="#aaa4ad"/><circle cx="14" cy="41" r="5" fill="#f5ca9d"/></g>
+<g fill="#fff8dd" stroke="#c78e87" stroke-width="2"><path d="M415 80 423 96l16 7-16 7-8 16-7-16-16-7 16-7Z"/><path d="M49 177 55 188l12 5-12 5-6 11-5-11-11-5 11-5Z"/></g>
+</svg>
