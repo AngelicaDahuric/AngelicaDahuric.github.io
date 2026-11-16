@@ -232,9 +232,9 @@ aside:
     description:
     button:
       enable: true
-      icon: fab fa-github
-      text: Follow Me
-      link: https://github.com/xxxxxx
+      icon: fas fa-user
+      text: It's me
+      link: /lab/
   card_announcement:
     enable: true
     content: This is my Blog
